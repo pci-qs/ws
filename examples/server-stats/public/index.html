@@ -1,63 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Server stats</title>
-    <style>
-      table, td {
-        border: 1px solid #333;
-      }
 
-      thead {
-        background-color: #333;
-        color: #fff;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Server stats</h1>
-    <table>
-      <thead>
-        <tr>
-          <th colspan="2">Memory usage</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>RSS</td>
-          <td id="rss"></td>
-        </tr>
-        <tr>
-          <td>Heap total</td>
-          <td id="heapTotal"></td>
-        </tr>
-        <tr>
-          <td>Heap used</td>
-          <td id="heapUsed"></td>
-        </tr>
-        <tr>
-          <td>External</td>
-          <td id="external"></td>
-        </tr>
-      </tbody>
-    </table>
-    <script>
-      (function() {
-        const rss = document.getElementById('rss');
-        const heapTotal = document.getElementById('heapTotal');
-        const heapUsed = document.getElementById('heapUsed');
-        const external = document.getElementById('external');
-        const ws = new WebSocket(`ws://${location.host}`);
+<head>
+  <meta charset="utf-8">
+  <title>Trade changes</title>
+  <style>
+    table,
+    td {
+      border: 1px solid #333;
+    }
 
-        ws.onmessage = function(event) {
-          const data = JSON.parse(event.data);
+    thead {
+      background-color: #333;
+      color: #fff;
+    }
+  </style>
+</head>
 
-          rss.textContent = data.rss;
-          heapTotal.textContent = data.heapTotal;
-          heapUsed.textContent = data.heapUsed;
-          external.textContent = data.external;
-        };
-      })();
-    </script>
-  </body>
+<body>
+  <h1>Trade change info</h1>
+  <table id = "changeTable">
+    <tr>
+      <th>Time</th>
+      <th>System type</th>
+      <th>Strategy type</th>
+      <th>Strategy name</th>
+      <th>Trade Id</th>
+      <th>Status</th>
+      <th>Symbol</th>
+      <th>Volume</th>
+      <th>Direction</th>
+      <th>Open time</th>
+      <th>Close time</th>
+    </tr>
+  </table>
+  <script>
+    const ws = new WebSocket(`ws://${location.host}`);
+
+    (function () {
+      const table = document.getElementById('changeTable');
+
+      ws.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+
+        const row = table.insertRow(-1);
+        const updateTime = row.insertCell(0);
+        const systemType = row.insertCell(1);
+        const strategyType = row.insertCell(2);
+        const strategyName = row.insertCell(3);
+        const tradeId = row.insertCell(4);
+        const status = row.insertCell(5);
+        const symbol = row.insertCell(6);
+        const volume = row.insertCell(7);
+        const direction = row.insertCell(8);
+        const openTime = row.insertCell(9);
+        const closeTime = row.insertCell(10);
+        
+        const date = new Date(data.updateTime);
+        updateTime.innerHTML = date.toLocaleString();
+        systemType.innerHTML = data.systemType;
+        strategyType.innerHTML = data.strategyType;
+        strategyName.innerHTML = data.strategyName;
+        tradeId.innerHTML = data.tradingUnitId;
+        if (data.status == 3)
+          status.innerHTML = "opened";
+        if (data.status == 4)
+          status.innerHTML = "closed";
+        symbol.innerHTML = data.symbolName;
+        volume.innerHTML = data.volume;
+        direction.innerHTML =data.direction;
+        openTime.innerHTML = new Date(data.openTime).toLocaleString();
+        closeTime.innerHTML = new Date(data.closeTime).toLocaleString();        
+        console.log(data);
+      };
+    })();
+  </script>
+</body>
+
 </html>

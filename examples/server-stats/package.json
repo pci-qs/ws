@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "repository": "websockets/ws",
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "mongodb": "^4.2.2"
   }
 }
